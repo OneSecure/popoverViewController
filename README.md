@@ -4,7 +4,7 @@
 　在之前如果想要在iphone上实现popover的效果需要自定义view,在iOS8中提供了UIPopoverPresentationController在ipad和iphone两个设备上同时实现popover的效果。找了找网上具体使用的栗子比较少，加上我也是个小菜鸟，所以写着以防我白痴的记忆以后不记得了干着急。如果有不对的地方也请指正~<br>
 ***
 * 如果要再ControllerA中点击某个按钮弹出模态视图显示ControllerB,那么进行主动弹出的controllerA就是presenting view controller，从名字可看出“主动”。而被弹出的controllerB是presented view controller。<br>
- <img src="http://ac-3xs828an.clouddn.com/da212933d457ca2e.PNG" width = "300" height = "500" alt="example" align=center />
+ <img src="img1.png" />
  * `UIPopoverPresentationController`是`UIViewController`的一个属性，所以并不需要你特地去建立一个`UIPopoverPresentationController`来进行操作，而应该建立一个`UIViewController`。<br>
 * 相关属性<br>
 １．`sourceRect`：指定箭头所指区域的矩形框范围，以sourceview的左上角为坐标原点
