@@ -8,8 +8,6 @@
 
 #import <UIKit/UIKit.h>
 
-@interface ViewController : UIViewController<UIPopoverPresentationControllerDelegate>
-
-
+@interface ViewController : UIViewController
 @end
 

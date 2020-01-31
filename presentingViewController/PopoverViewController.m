@@ -8,54 +8,91 @@
 
 #import "PopoverViewController.h"
 
-@implementation PopoverViewController
+@implementation PopoverViewController {
+    UITableView *_tableView;
+}
 
-- (void)viewDidLoad {
+- (instancetype) initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
+    if (self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil]) {
+        _currentSelected = -1;
+    }
+    return self;
+}
+
+- (void) setCurrentSelected:(NSInteger)currentSelected {
+    if (0 <= currentSelected && currentSelected < _colorArray.count) {
+        _currentSelected = currentSelected;
+        if (_tableView) {
+            NSIndexPath *path = [NSIndexPath indexPathForRow:currentSelected inSection:0];
+            [_tableView selectRowAtIndexPath:path
+                                    animated:YES
+                              scrollPosition:UITableViewScrollPositionMiddle];
+        }
+    } else {
+        _currentSelected = -1;
+    }
+}
+
+- (void) viewDidLoad {
     [super viewDidLoad];
-    self.tableView = [[UITableView alloc] initWithFrame:self.view.frame];
-    [self.view addSubview:self.tableView];
-    self.tableView.dataSource = self;
-    self.tableView.delegate = self;
-    self.tableView.scrollEnabled = NO;
-    
-    self.colorArray = [[NSMutableArray alloc] initWithObjects:@"green",@"gray", @"blue",@"purple", @"yellow", nil];
+    CGRect frame = self.view.frame;
+    _tableView = [[UITableView alloc] initWithFrame:frame];
+    [self.view addSubview:_tableView];
+    _tableView.dataSource = self;
+    _tableView.delegate = self;
+    _tableView.scrollEnabled = YES;
+    _tableView.bounces = NO;
 }
 
-- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
-    return self.colorArray.count;
+- (void) viewDidLayoutSubviews {
+    [super viewDidLayoutSubviews];
+     _tableView.frame = self.view.frame;
 }
 
-- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
+- (NSInteger) tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    return _colorArray.count;
+}
+
+- (NSInteger) numberOfSectionsInTableView:(UITableView *)tableView{
     return 1;
 }
 
-- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+- (UITableViewCell *) tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     static NSString *identifer = @"cell";
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:identifer];
     if (cell == nil) {
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifer];
     }
-    cell.textLabel.text = [NSString stringWithFormat:@"%@", self.colorArray[indexPath.row]];
+    cell.textLabel.text = [NSString stringWithFormat:@"%@", _colorArray[indexPath.row]];
+    cell.accessoryType = (_currentSelected == indexPath.row) ? UITableViewCellAccessoryCheckmark : UITableViewCellAccessoryNone;
     return cell;
 }
 
-- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
-    [[NSNotificationCenter defaultCenter] postNotificationName:@"click" object:indexPath];
+- (void) tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    _currentSelected = indexPath.row;
+    if (_onItemSelected) {
+        _onItemSelected(_colorArray[_currentSelected], _currentSelected);
+    }
 }
 
-//重写preferredContentSize，让popover返回你期望的大小
-- (CGSize)preferredContentSize {
-    if (self.presentingViewController && self.tableView != nil) {
+// 重写 preferredContentSize, 让 popover 返回你期望的大小
+- (CGSize) preferredContentSize {
+    if (self.presentingViewController && _tableView != nil) {
         CGSize tempSize = self.presentingViewController.view.bounds.size;
-        tempSize.width = 150;
-        CGSize size = [self.tableView sizeThatFits:tempSize];  //sizeThatFits返回的是最合适的尺寸，但不会改变控件的大小
+        //tempSize.width = 150;
+        CGSize size = [_tableView sizeThatFits:tempSize];  // sizeThatFits 返回的是最合适的尺寸，但不会改变控件的大小
         return size;
-    }else {
+    } else {
         return [super preferredContentSize];
     }
 }
 
-- (void)setPreferredContentSize:(CGSize)preferredContentSize{
+- (void) setPreferredContentSize:(CGSize)preferredContentSize {
     super.preferredContentSize = preferredContentSize;
 }
+
+- (void) dealloc {
+    // NSLog(@"%@ dead", self);
+}
+
 @end

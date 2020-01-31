@@ -9,89 +9,100 @@
 #import "ViewController.h"
 #import "PopoverViewController.h"
 
-@interface ViewController ()
-@property (strong, nonatomic) UIButton *button;
-@property (strong, nonatomic) PopoverViewController *buttonPopVC;
-@property (strong, nonatomic) PopoverViewController *itemPopVC;
-@property (strong, nonatomic) NSString *currentPop;
+@interface ViewController () <UIPopoverPresentationControllerDelegate>
 @end
 
-@implementation ViewController
+@implementation ViewController {
+    UIButton *_button;
+    PopoverViewController *_buttonPopVC;
+    PopoverViewController *_itemPopVC;
+    NSArray<NSString *> *_colorArray;
+    NSArray<UIColor *> *_colorObjArray;
+    NSInteger _selected;
+}
 
-- (void)viewDidLoad {
+- (void) viewDidLoad {
     [super viewDidLoad];
-    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"item" style:UIBarButtonItemStylePlain target:self action:@selector(rightItemClick)];
+    UIBarButtonItem *barBtn = [[UIBarButtonItem alloc] initWithTitle:@"item"
+                                                               style:UIBarButtonItemStylePlain
+                                                              target:self
+                                                              action:@selector(rightItemClick)];
+    self.navigationItem.rightBarButtonItem = barBtn;
     
-    self.view.backgroundColor = [UIColor whiteColor];
+    _colorArray = @[@"white", @"green", @"gray", @"blue", @"purple", @"yellow", ];
+    _colorObjArray = @[[UIColor whiteColor], [UIColor greenColor], [UIColor grayColor], [UIColor blueColor], [UIColor purpleColor], [UIColor yellowColor], ];
+    _selected = 0;
+    
+    self.view.backgroundColor = _colorObjArray[_selected];
     _button = [[UIButton alloc] initWithFrame:CGRectMake(20, 100, 100, 40)];
     [_button setTitle:@"button" forState:UIControlStateNormal];
     [_button setTitleColor:[UIColor redColor] forState:UIControlStateNormal];
     [self.view addSubview:_button];
     [_button addTarget:self action:@selector(buttonClick:) forControlEvents:UIControlEventTouchUpInside];
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(tableDidSelected:) name:@"click" object:nil];
-    // Do any additional setup after loading the view, typically from a nib.
 }
 
-- (void)rightItemClick{
-    self.itemPopVC = [[PopoverViewController alloc] init];
-    self.itemPopVC.modalPresentationStyle = UIModalPresentationPopover;
-    self.itemPopVC.popoverPresentationController.barButtonItem = self.navigationItem.rightBarButtonItem;  //rect参数是以view的左上角为坐标原点（0，0）
-    self.itemPopVC.popoverPresentationController.permittedArrowDirections = UIPopoverArrowDirectionUnknown; //箭头方向,如果是baritem不设置方向，会默认up，up的效果也是最理想的
-    self.itemPopVC.popoverPresentationController.delegate = self;
-    [self presentViewController:self.itemPopVC animated:YES completion:nil];
-
+- (void) rightItemClick {
+    _itemPopVC = [[PopoverViewController alloc] init];
+    _itemPopVC.colorArray = _colorArray;
+    _itemPopVC.currentSelected = _selected;
+    _itemPopVC.modalPresentationStyle = UIModalPresentationPopover;
+    //rect参数是以view的左上角为坐标原点（0，0）
+    _itemPopVC.popoverPresentationController.barButtonItem = self.navigationItem.rightBarButtonItem;
+    //箭头方向,如果是baritem不设置方向，会默认up，up的效果也是最理想的
+    _itemPopVC.popoverPresentationController.permittedArrowDirections = UIPopoverArrowDirectionUnknown;
+    _itemPopVC.popoverPresentationController.delegate = self;
+    [self presentViewController:_itemPopVC animated:YES completion:nil];
+    
+    __weak typeof(self) weakSelf = self;
+    [_itemPopVC setOnItemSelected:^(id selectedObject, NSInteger selectedIndex) {
+        __strong typeof(self) strongSelf = weakSelf;
+        [strongSelf->_itemPopVC dismissViewControllerAnimated:YES completion:nil];
+        strongSelf->_itemPopVC = nil;
+        [strongSelf tableDidSelected:selectedObject index:selectedIndex];
+    }];
 }
 
 //处理popover上的talbe的cell点击
-- (void)tableDidSelected:(NSNotification *)notification {
-    NSIndexPath *indexpath = (NSIndexPath *)notification.object;
-    switch (indexpath.row) {
-        case 0:
-            self.view.backgroundColor = [UIColor greenColor];
-            break;
-        case 1:
-            self.view.backgroundColor = [UIColor grayColor];
-            break;
-        case 2:
-            self.view.backgroundColor = [UIColor blueColor];
-            break;
-        case 3:
-            self.view.backgroundColor = [UIColor purpleColor];
-            break;
-        case 4:
-            self.view.backgroundColor = [UIColor yellowColor];
-            break;
-    }
-    if (self.buttonPopVC) {
-        [self.buttonPopVC dismissViewControllerAnimated:YES completion:nil];    //我暂时使用这个方法让popover消失，但我觉得应该有更好的方法，因为这个方法并不会调用popover消失的时候会执行的回调。
-        self.buttonPopVC = nil;
-        
-    }else{
-        [self.itemPopVC dismissViewControllerAnimated:YES completion:nil];
-        self.itemPopVC = nil;
-    }
+- (void) tableDidSelected:(NSString*)color index:(NSInteger)index {
+    _selected = index;
+    self.view.backgroundColor = _colorObjArray[_selected];
 }
 
 - (void)buttonClick:(UIButton *)sender{
-    self.buttonPopVC = [[PopoverViewController alloc] init];
-    self.buttonPopVC.modalPresentationStyle = UIModalPresentationPopover;
-    self.buttonPopVC.popoverPresentationController.sourceView = _button;  //rect参数是以view的左上角为坐标原点（0，0）
-    self.buttonPopVC.popoverPresentationController.sourceRect = _button.bounds; //指定箭头所指区域的矩形框范围（位置和尺寸），以view的左上角为坐标原点
-    self.buttonPopVC.popoverPresentationController.permittedArrowDirections = UIPopoverArrowDirectionUp; //箭头方向
-    self.buttonPopVC.popoverPresentationController.delegate = self;
-    [self presentViewController:self.buttonPopVC animated:YES completion:nil];
+    _buttonPopVC = [[PopoverViewController alloc] init];
+    _buttonPopVC.colorArray = _colorArray;
+    _buttonPopVC.currentSelected = _selected;
+    _buttonPopVC.modalPresentationStyle = UIModalPresentationPopover;
+    _buttonPopVC.popoverPresentationController.sourceView = _button;  //rect参数是以view的左上角为坐标原点（0，0）
+    _buttonPopVC.popoverPresentationController.sourceRect = _button.bounds; //指定箭头所指区域的矩形框范围（位置和尺寸），以view的左上角为坐标原点
+    _buttonPopVC.popoverPresentationController.permittedArrowDirections = UIPopoverArrowDirectionUp; //箭头方向
+    _buttonPopVC.popoverPresentationController.delegate = self;
+    [self presentViewController:_buttonPopVC animated:YES completion:nil];
+    __weak typeof(self) weakSelf = self;
+    [_buttonPopVC setOnItemSelected:^(id selectedObject, NSInteger selectedIndex) {
+        __strong typeof(self) strongSelf = weakSelf;
+        // 我暂时使用这个方法让 popover 消失，但我觉得应该有更好的方法，因为这个方法并不会调用 popover 消失的时候会执行的回调。
+        [strongSelf->_buttonPopVC dismissViewControllerAnimated:YES completion:nil];
+        strongSelf->_buttonPopVC = nil;
+        [strongSelf tableDidSelected:selectedObject index:selectedIndex];
+    }];
 }
 
-- (UIModalPresentationStyle)adaptivePresentationStyleForPresentationController:(UIPresentationController *)controller{
+- (UIModalPresentationStyle) adaptivePresentationStyleForPresentationController:(UIPresentationController *)controller {
     return UIModalPresentationNone;
 }
 
-- (BOOL)popoverPresentationControllerShouldDismissPopover:(UIPopoverPresentationController *)popoverPresentationController{
-    return NO;   //点击蒙版popover不消失， 默认yes
+//- (BOOL) popoverPresentationControllerShouldDismissPopover:(UIPopoverPresentationController *)popoverPresentationController {
+//    return NO; // 点击蒙板 popover 是否消失， 默认 yes
+//}
+
+- (void) popoverPresentationControllerDidDismissPopover:(UIPopoverPresentationController *)popoverPresentationController {
+    NSLog(@"%@ popoverPresentationControllerDidDismissPopover", popoverPresentationController);
+    _buttonPopVC = nil;
+    _itemPopVC = nil;
 }
 
-- (void)didReceiveMemoryWarning {
+- (void) didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
