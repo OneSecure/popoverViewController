@@ -8,12 +8,21 @@
 
 #import <UIKit/UIKit.h>
 
-@interface PopoverViewController : UIViewController<UITableViewDataSource, UITableViewDelegate>
+@interface PopoverViewController : UIViewController
+@property(nonatomic, strong, readonly) UIView *contentView;
+- (instancetype) initWithContentView:(UIView *)contentView;
+@end
+
+
+@interface PopoverTableViewController : PopoverViewController
 @property(nonatomic, strong) NSArray<NSString *> *menuItems;
 @property(nonatomic, assign) NSInteger selectedItem;
-@property(nonatomic, strong, readonly) UITableView *tableView;
 @property(nonatomic, strong) void (^onItemSelected)(id selectedObject, NSInteger selectedIndex);
+- (instancetype) initWithArray:(NSArray<NSString *> *)array selectedItem:(NSInteger)selectedItem;
+@end
 
-@property (nonatomic, strong) UIImage *image;
-@property (nonatomic, strong, readonly) UIImageView *imageView;
+
+@interface PopoverImageViewController : PopoverViewController
+@property(nonatomic, strong) UIImage *image;
+- (instancetype) initWithImage:(UIImage*)image;
 @end

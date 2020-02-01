@@ -14,8 +14,8 @@
 
 @implementation ViewController {
     UIButton *_button;
-    PopoverViewController *_buttonPopVC;
-    PopoverViewController *_itemPopVC;
+    PopoverTableViewController *_buttonPopVC;
+    PopoverTableViewController *_itemPopVC;
     NSArray<NSString *> *_colorArray;
     NSArray<UIColor *> *_colorObjArray;
     NSInteger _selected;
@@ -50,9 +50,7 @@
 }
 
 - (void) rightItemClick {
-    _itemPopVC = [[PopoverViewController alloc] init];
-    _itemPopVC.menuItems = _colorArray;
-    _itemPopVC.selectedItem = _selected;
+    _itemPopVC = [[PopoverTableViewController alloc] initWithArray:_colorArray selectedItem:_selected];
     _itemPopVC.modalPresentationStyle = UIModalPresentationPopover;
     //rect参数是以view的左上角为坐标原点（0，0）
     _itemPopVC.popoverPresentationController.barButtonItem = self.navigationItem.rightBarButtonItem;
@@ -77,9 +75,7 @@
 }
 
 - (void)buttonClick:(UIButton *)sender{
-    _buttonPopVC = [[PopoverViewController alloc] init];
-    _buttonPopVC.menuItems = _colorArray;
-    _buttonPopVC.selectedItem = _selected;
+    _buttonPopVC = [[PopoverTableViewController alloc] initWithArray:_colorArray selectedItem:_selected];
     _buttonPopVC.modalPresentationStyle = UIModalPresentationPopover;
     
     //rect参数是以view的左上角为坐标原点（0，0）
@@ -101,12 +97,11 @@
 }
 
 - (void) imgBtnClick:(UIButton*)sender {
-    PopoverViewController *imgCtrl = [[PopoverViewController alloc] init];
-    imgCtrl.modalPresentationStyle = UIModalPresentationPopover;
     NSString *path = [[NSBundle mainBundle] pathForResource:@"boat" ofType:@"png"];
     UIImage *fileImage = [UIImage imageWithContentsOfFile:path];
-    imgCtrl.image = fileImage;
-    
+    PopoverImageViewController *imgCtrl = [[PopoverImageViewController alloc] initWithImage:fileImage];
+    imgCtrl.modalPresentationStyle = UIModalPresentationPopover;
+
     UIPopoverPresentationController *popoverCtrl = [imgCtrl popoverPresentationController];
     popoverCtrl.delegate = self;
     popoverCtrl.sourceView = sender;
@@ -115,7 +110,7 @@
     
     [self presentViewController:imgCtrl animated:YES completion:^{
         // do some settings on image view.
-        NSLog(@"%@", imgCtrl.imageView);
+        NSLog(@"%@", imgCtrl.contentView);
     }];
 }
 

@@ -9,11 +9,56 @@
 #import "PopoverViewController.h"
 
 @implementation PopoverViewController {
+    @protected UIView *_contentView;
 }
 
-- (instancetype) initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
-    if (self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil]) {
-        _selectedItem = -1;
+- (instancetype) initWithContentView:(UIView *)contentView {
+    if ((self = [super initWithNibName:nil bundle:nil])) {
+        _contentView = contentView;
+    }
+    return self;
+}
+
+- (void) viewDidLoad {
+    [super viewDidLoad];
+    if (_contentView) {
+        [self.view addSubview:_contentView];
+    }
+}
+
+- (void) viewDidLayoutSubviews {
+    [super viewDidLayoutSubviews];
+    if (_contentView) {
+        ;
+    }
+}
+
+// 重写 preferredContentSize, 让 popover 返回你期望的大小
+- (CGSize) preferredContentSize {
+    if (self.presentingViewController && _contentView != nil) {
+        return _contentView.frame.size;
+    } else {
+        return [super preferredContentSize];
+    }
+}
+
+- (void) dealloc {
+    // NSLog(@"%@ dead", self);
+}
+
+@end
+
+
+@interface PopoverTableViewController ()<UITableViewDataSource, UITableViewDelegate>
+@end
+
+@implementation PopoverTableViewController
+
+- (instancetype) initWithArray:(NSArray<NSString *> *)array selectedItem:(NSInteger)selectedItem {
+    UITableView *tableView = [[UITableView alloc] initWithFrame:CGRectZero];
+    if (self = [super initWithContentView:tableView]) {
+        _menuItems = array;
+        _selectedItem = selectedItem;
     }
     return self;
 }
@@ -24,56 +69,31 @@
     } else {
         _selectedItem = -1;
     }
-    [_tableView reloadData];
+    [(UITableView *)_contentView reloadData];
 }
 
 - (void) setMenuItems:(NSArray<NSString *> *)menuItems {
     _menuItems = menuItems;
-    [_tableView reloadData];
+    [(UITableView *)_contentView reloadData];
 }
 
 - (void) viewDidLoad {
     [super viewDidLoad];
-    CGRect frame = self.view.frame;
-    
     if (_menuItems) {
-        _tableView = [[UITableView alloc] initWithFrame:frame];
-        [self.view addSubview:_tableView];
-        _tableView.dataSource = self;
-        _tableView.delegate = self;
-        _tableView.scrollEnabled = YES;
+        UITableView *tableView = (UITableView *)_contentView;
+        tableView.dataSource = self;
+        tableView.delegate = self;
+        tableView.scrollEnabled = YES;
+        tableView.frame = self.view.frame;
     
         // 这一句很重要, 否则 tableView 在 iOS 13 下会错位.
-        _tableView.bounces = NO;
-    } else if (_image) {
-        _imageView = [[UIImageView alloc] init];
-        _imageView.contentMode = UIViewContentModeScaleAspectFit;
-        [self.view addSubview:_imageView];
-    } else {
-        NSAssert(NO, @"Something went wrong!");
+        tableView.bounces = NO;
     }
 }
 
 - (void) viewDidLayoutSubviews {
     [super viewDidLayoutSubviews];
-    if (_menuItems) {
-        _tableView.frame = self.view.frame;
-    } else if (_image) {
-        _imageView.frame = self.view.frame;
-        [self drawImage];
-    }
-}
-
-- (void) drawImage {
-    CGSize imgSize = _image.size;
-    CGSize viewSize = _imageView.frame.size;
-    float scaleFactor = MIN(viewSize.width/imgSize.width, viewSize.height/imgSize.height);
-    CGRect frame = CGRectMake(0, 0, imgSize.width * scaleFactor, imgSize.height * scaleFactor);
-    UIGraphicsBeginImageContextWithOptions(frame.size, NO, 0.0);
-    [_image drawInRect:frame];
-    UIImage *fitImage = UIGraphicsGetImageFromCurrentImageContext();
-    UIGraphicsEndImageContext();
-    _imageView.image = fitImage;
+    _contentView.frame = self.view.frame;
 }
 
 - (NSInteger) tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
@@ -102,33 +122,72 @@
     }
 }
 
-// 重写 preferredContentSize, 让 popover 返回你期望的大小
 - (CGSize) preferredContentSize {
     if (self.presentingViewController && _menuItems != nil) {
         CGSize tempSize = self.presentingViewController.view.bounds.size;
         //tempSize.width = 150;
         
         // sizeThatFits 返回的是最合适的尺寸，但不会改变控件的大小
-        CGSize size = [_tableView sizeThatFits:tempSize];
-        return size;
-    } else if (self.presentingViewController && _image != nil) {
-        CGSize imgSize = _image.size;
-        CGSize viewSize = self.view.frame.size;
-        float scaleFactor = MIN(viewSize.width / imgSize.width, viewSize.height / imgSize.height);
-        CGSize fitSize = CGSizeMake(imgSize.width * scaleFactor, imgSize.height * scaleFactor);
-        CGSize size = [_imageView sizeThatFits:fitSize];
+        CGSize size = [_contentView sizeThatFits:tempSize];
         return size;
     } else {
         return [super preferredContentSize];
     }
 }
 
-- (void) setPreferredContentSize:(CGSize)preferredContentSize {
-    super.preferredContentSize = preferredContentSize;
+@end
+
+
+@implementation PopoverImageViewController {
+    UIImage *_image;
 }
 
-- (void) dealloc {
-    // NSLog(@"%@ dead", self);
+- (instancetype) initWithImage:(UIImage *)image {
+    UIImageView *view = [[UIImageView alloc] init];
+    if ((self = [super initWithContentView:view])) {
+        _image = image;
+    }
+    return self;
+}
+
+- (void) viewDidLoad {
+    [super viewDidLoad];
+    if (_image) {
+        _contentView.contentMode = UIViewContentModeScaleAspectFit;
+    }
+}
+
+- (void) viewDidLayoutSubviews {
+    [super viewDidLayoutSubviews];
+    if (_image) {
+        _contentView.frame = self.view.frame;
+        [self drawImage];
+    }
+}
+
+- (void) drawImage {
+    CGSize imgSize = _image.size;
+    CGSize viewSize = _contentView.frame.size;
+    float scaleFactor = MIN(viewSize.width/imgSize.width, viewSize.height/imgSize.height);
+    CGRect frame = CGRectMake(0, 0, imgSize.width * scaleFactor, imgSize.height * scaleFactor);
+    UIGraphicsBeginImageContextWithOptions(frame.size, NO, 0.0);
+    [_image drawInRect:frame];
+    UIImage *fitImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    ((UIImageView*)_contentView).image = fitImage;
+}
+
+- (CGSize) preferredContentSize {
+    if (self.presentingViewController && _image != nil) {
+        CGSize imgSize = _image.size;
+        CGSize viewSize = self.view.frame.size;
+        float scaleFactor = MIN(viewSize.width / imgSize.width, viewSize.height / imgSize.height);
+        CGSize fitSize = CGSizeMake(imgSize.width * scaleFactor, imgSize.height * scaleFactor);
+        CGSize size = [_contentView sizeThatFits:fitSize];
+        return size;
+    } else {
+        return [super preferredContentSize];
+    }
 }
 
 @end
