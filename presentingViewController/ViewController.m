@@ -19,6 +19,8 @@
     NSArray<NSString *> *_colorArray;
     NSArray<UIColor *> *_colorObjArray;
     NSInteger _selected;
+    
+    UIButton *_imgBtn;
 }
 
 - (void) viewDidLoad {
@@ -39,6 +41,12 @@
     [_button setTitleColor:[UIColor redColor] forState:UIControlStateNormal];
     [self.view addSubview:_button];
     [_button addTarget:self action:@selector(buttonClick:) forControlEvents:UIControlEventTouchUpInside];
+    
+    _imgBtn = [[UIButton alloc] initWithFrame:CGRectMake(20, 200, 100, 40)];
+    [_imgBtn setTitle:@"Image btn" forState:UIControlStateNormal];
+    [_imgBtn setTitleColor:[UIColor redColor] forState:UIControlStateNormal];
+    [self.view addSubview:_imgBtn];
+    [_imgBtn addTarget:self action:@selector(imgBtnClick:) forControlEvents:UIControlEventTouchUpInside];
 }
 
 - (void) rightItemClick {
@@ -92,6 +100,26 @@
     }];
 }
 
+- (void) imgBtnClick:(UIButton*)sender {
+    PopoverViewController *imgCtrl = [[PopoverViewController alloc] init];
+    imgCtrl.modalPresentationStyle = UIModalPresentationPopover;
+    NSString *path = [[NSBundle mainBundle] pathForResource:@"boat" ofType:@"png"];
+    UIImage *fileImage = [UIImage imageWithContentsOfFile:path];
+    imgCtrl.image = fileImage;
+    
+    UIPopoverPresentationController *popoverCtrl = [imgCtrl popoverPresentationController];
+    popoverCtrl.delegate = self;
+    popoverCtrl.sourceView = sender;
+    popoverCtrl.sourceRect = sender.bounds;
+    popoverCtrl.permittedArrowDirections = UIPopoverArrowDirectionUnknown;
+    
+    [self presentViewController:imgCtrl animated:YES completion:^{
+        // do some settings on image view.
+        NSLog(@"%@", imgCtrl.imageView);
+    }];
+}
+
+#pragma mark - UIAdaptivePresentationControllerDelegate
 - (UIModalPresentationStyle) adaptivePresentationStyleForPresentationController:(UIPresentationController *)controller {
     return UIModalPresentationNone;
 }

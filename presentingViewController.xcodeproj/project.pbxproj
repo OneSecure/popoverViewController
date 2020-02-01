@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3A466E9823E58C2F0054E2AD /* boat.png in Resources */ = {isa = PBXBuildFile; fileRef = 3A466E9723E58C2E0054E2AD /* boat.png */; };
 		CDE4B1D41B81B7F2006C6AF0 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = CDE4B1D31B81B7F2006C6AF0 /* main.m */; };
 		CDE4B1D71B81B7F2006C6AF0 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = CDE4B1D61B81B7F2006C6AF0 /* AppDelegate.m */; };
 		CDE4B1DA1B81B7F2006C6AF0 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = CDE4B1D91B81B7F2006C6AF0 /* ViewController.m */; };
@@ -16,6 +17,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		3A466E9723E58C2E0054E2AD /* boat.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = boat.png; sourceTree = "<group>"; };
 		CDE4B1CE1B81B7F2006C6AF0 /* presentingViewController.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = presentingViewController.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CDE4B1D21B81B7F2006C6AF0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		CDE4B1D31B81B7F2006C6AF0 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -59,6 +61,7 @@
 		CDE4B1D01B81B7F2006C6AF0 /* presentingViewController */ = {
 			isa = PBXGroup;
 			children = (
+				3A466E9723E58C2E0054E2AD /* boat.png */,
 				CDE4B1D51B81B7F2006C6AF0 /* AppDelegate.h */,
 				CDE4B1D61B81B7F2006C6AF0 /* AppDelegate.m */,
 				CDE4B1D81B81B7F2006C6AF0 /* ViewController.h */,
@@ -140,6 +143,7 @@
 			files = (
 				CDE4B1E21B81B7F2006C6AF0 /* LaunchScreen.xib in Resources */,
 				CDE4B1DF1B81B7F2006C6AF0 /* Images.xcassets in Resources */,
+				3A466E9823E58C2F0054E2AD /* boat.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
