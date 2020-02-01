@@ -9,7 +9,7 @@
 #import <UIKit/UIKit.h>
 
 @interface PopoverViewController : UIViewController<UITableViewDataSource, UITableViewDelegate>
-@property (strong, nonatomic) NSArray<NSString *> *colorArray;
-@property(nonatomic, assign) NSInteger currentSelected;
+@property (strong, nonatomic) NSArray<NSString *> *menuItems;
+@property(nonatomic, assign) NSInteger selectedItem;
 @property(nonatomic, strong) void (^onItemSelected)(id selectedObject, NSInteger selectedIndex);
 @end

@@ -43,8 +43,8 @@
 
 - (void) rightItemClick {
     _itemPopVC = [[PopoverViewController alloc] init];
-    _itemPopVC.colorArray = _colorArray;
-    _itemPopVC.currentSelected = _selected;
+    _itemPopVC.menuItems = _colorArray;
+    _itemPopVC.selectedItem = _selected;
     _itemPopVC.modalPresentationStyle = UIModalPresentationPopover;
     //rect参数是以view的左上角为坐标原点（0，0）
     _itemPopVC.popoverPresentationController.barButtonItem = self.navigationItem.rightBarButtonItem;
@@ -70,11 +70,15 @@
 
 - (void)buttonClick:(UIButton *)sender{
     _buttonPopVC = [[PopoverViewController alloc] init];
-    _buttonPopVC.colorArray = _colorArray;
-    _buttonPopVC.currentSelected = _selected;
+    _buttonPopVC.menuItems = _colorArray;
+    _buttonPopVC.selectedItem = _selected;
     _buttonPopVC.modalPresentationStyle = UIModalPresentationPopover;
-    _buttonPopVC.popoverPresentationController.sourceView = _button;  //rect参数是以view的左上角为坐标原点（0，0）
-    _buttonPopVC.popoverPresentationController.sourceRect = _button.bounds; //指定箭头所指区域的矩形框范围（位置和尺寸），以view的左上角为坐标原点
+    
+    //rect参数是以view的左上角为坐标原点（0，0）
+    _buttonPopVC.popoverPresentationController.sourceView = _button;
+    //指定箭头所指区域的矩形框范围（位置和尺寸），以view的左上角为坐标原点
+    _buttonPopVC.popoverPresentationController.sourceRect = _button.bounds;
+    
     _buttonPopVC.popoverPresentationController.permittedArrowDirections = UIPopoverArrowDirectionUp; //箭头方向
     _buttonPopVC.popoverPresentationController.delegate = self;
     [self presentViewController:_buttonPopVC animated:YES completion:nil];

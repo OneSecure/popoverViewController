@@ -14,23 +14,23 @@
 
 - (instancetype) initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
     if (self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil]) {
-        _currentSelected = -1;
+        _selectedItem = -1;
     }
     return self;
 }
 
-- (void) setCurrentSelected:(NSInteger)currentSelected {
-    if (0 <= currentSelected && currentSelected < _colorArray.count) {
-        _currentSelected = currentSelected;
-        if (_tableView) {
-            NSIndexPath *path = [NSIndexPath indexPathForRow:currentSelected inSection:0];
-            [_tableView selectRowAtIndexPath:path
-                                    animated:YES
-                              scrollPosition:UITableViewScrollPositionMiddle];
-        }
+- (void) setSelectedItem:(NSInteger)selectedItem {
+    if (0 <= selectedItem && selectedItem < _menuItems.count) {
+        _selectedItem = selectedItem;
     } else {
-        _currentSelected = -1;
+        _selectedItem = -1;
     }
+    [_tableView reloadData];
+}
+
+- (void) setMenuItems:(NSArray<NSString *> *)menuItems {
+    _menuItems = menuItems;
+    [_tableView reloadData];
 }
 
 - (void) viewDidLoad {
@@ -41,6 +41,8 @@
     _tableView.dataSource = self;
     _tableView.delegate = self;
     _tableView.scrollEnabled = YES;
+    
+    // 这一句很重要, 否则 tableView 在 iOS 13 下会错位. 
     _tableView.bounces = NO;
 }
 
@@ -50,7 +52,7 @@
 }
 
 - (NSInteger) tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return _colorArray.count;
+    return _menuItems.count;
 }
 
 - (NSInteger) numberOfSectionsInTableView:(UITableView *)tableView{
@@ -63,15 +65,15 @@
     if (cell == nil) {
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifer];
     }
-    cell.textLabel.text = [NSString stringWithFormat:@"%@", _colorArray[indexPath.row]];
-    cell.accessoryType = (_currentSelected == indexPath.row) ? UITableViewCellAccessoryCheckmark : UITableViewCellAccessoryNone;
+    cell.textLabel.text = [NSString stringWithFormat:@"%@", _menuItems[indexPath.row]];
+    cell.accessoryType = (_selectedItem == indexPath.row) ? UITableViewCellAccessoryCheckmark : UITableViewCellAccessoryNone;
     return cell;
 }
 
 - (void) tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    _currentSelected = indexPath.row;
+    _selectedItem = indexPath.row;
     if (_onItemSelected) {
-        _onItemSelected(_colorArray[_currentSelected], _currentSelected);
+        _onItemSelected(_menuItems[_selectedItem], _selectedItem);
     }
 }
 
@@ -80,7 +82,9 @@
     if (self.presentingViewController && _tableView != nil) {
         CGSize tempSize = self.presentingViewController.view.bounds.size;
         //tempSize.width = 150;
-        CGSize size = [_tableView sizeThatFits:tempSize];  // sizeThatFits 返回的是最合适的尺寸，但不会改变控件的大小
+        
+        // sizeThatFits 返回的是最合适的尺寸，但不会改变控件的大小
+        CGSize size = [_tableView sizeThatFits:tempSize];
         return size;
     } else {
         return [super preferredContentSize];
